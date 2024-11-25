@@ -1,6 +1,3 @@
-// 툴-> 라이브러리에 PubSubClient를 입력하여 다운로드 받을것.
-//Nano에는 모스키토, 모스키토-클라이언트가 설치되어있을것.(모스키토는 브로커역할을 함)
-
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <time.h>

@@ -1,8 +1,5 @@
-from flask import Flask,render_template,url_for,request,redirect, make_response
-import random
 import json
 from time import time
-from random import random
 from flask import Flask, render_template, make_response
 import pymysql
 
