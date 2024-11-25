@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html  lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+
+    <title>Flask App </title>
+
+    <!-- Bootstraps Java Scipts Links -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+
+    <!-- JQuery links  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+    <!--High CHART LIVE  -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/highcharts-more.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+</head>
+
+<body>
+
+    <div class="jumbotron">
+        <h1 class="text-center text-black"> IoT Nano </h1>
+    </div>
+    <br>
+    <br>
+    <div class="jumbotron">
+        <h2 class="text-center text-black"id="name"> </h2>
+    </div>
+
+    <form action='/image ' method="POST">
+	    <button type="subit", value="Button"> Learning and Prediction Graph </button>
+    </form>
+
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-container">
+
+            </div>
+        </div>
+    </div>
+<br>
+<br>
+<br>
+
+
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-container2">
+
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var chartCurrent;
+        var chartVoltage;
+        function getsensorname() {
+            var requests = $.get('/live-data');
+            var tm = requests.done(function (result)
+            {
+                var el = document.getElementById("name");
+                el.textContent = "gas : "+result[2];
+            });
+        };
+        window.onload = function() {
+            setInterval(getsensorname, 1000);
+        };
+
+        function requestData()
+        {
+            // Ajax call to get the Data from Flask
+            var requests = $.get('/live-data');
+
+            var tm = requests.done(function (result)
+            {
+                // Current
+                var seriesCurrent = chartCurrent.series[0],
+                    shiftCurrent = seriesCurrent.data.length > 250;
+
+                //Voltage
+                var seriesVoltage= chartVoltage.series[0],
+                    shiftVoltage = seriesCurrent.data.length > 250;
+
+                // Add the Point
+                // Time  Current\
+                var data1 = [];
+                data1.push(result[0], result[1]);
+
+
+                // Add the Point
+                // Time  Voltage
+                var data2 = [];
+                data2.push(result[0],result[3]);
+
+
+                chartCurrent.series[0].addPoint(data1, true, shiftCurrent);
+                chartVoltage.series[0].addPoint(data2, true, shiftVoltage);
+
+
+                // call it again after one second
+                setTimeout(requestData, 100);
+
+            });
+        }
+
+        $(document).ready(function()
+        {
+            // --------------Chart 1 ----------------------------
+            chartCurrent = new Highcharts.Chart({
+                chart:
+                    {
+                    renderTo: 'data-container',
+                    defaultSeriesType: 'line',
+                    events: {
+                        load: requestData
+                            }
+                    },
+                title:
+                    {
+                    text: ' '
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 300,
+                    maxZoom: 20 * 1000,
+                    fontSize: ' '
+                        },
+                yAxis: {
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    title: {
+                        text: 'Value',
+                        margin: 80
+                            }
+                         },
+                series: [{
+                    color : '#c23d23',
+                    lineColor: '#303030',
+                    name: 'CURRENT',
+                    data: []
+                }]
+            });
+            // --------------Chart 1 Ends - -----------------
+
+            chartVoltage= new Highcharts.Chart({
+                chart:
+                    {
+                        renderTo: 'data-container2',
+                        defaultSeriesType: 'line',
+                        events: {
+                            load: requestData
+                        }
+                    },
+                title:
+                    {
+                        text: ' '
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 150,
+                    maxZoom: 20 * 1000
+                },
+                yAxis: {
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    title: {
+                        text: 'Value',
+                        margin: 80
+                    }
+                },
+                series: [{
+                    lineColor: '#1d82b8',
+                    name: 'POWER',
+                    data: []
+                    
+                }]
+            });
+
+
+        });
+    </script>
+
+
+
+
+</body>
+
+
+</html>
